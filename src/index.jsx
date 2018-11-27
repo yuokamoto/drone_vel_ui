@@ -21,6 +21,7 @@ class ControlPanel extends React.Component {
      land: null
     };
 
+
     this.state.ros.on('connection', function() {
       console.log('Connected to websocket server.');
     });
@@ -31,6 +32,7 @@ class ControlPanel extends React.Component {
 
     this.state.ros.on('close', function() {
       console.log('Connection to websocket server closed.');
+      setTimeout(()=>{this.connect('ws://localhost:9090')},1000)
     });
 
     this.state.cmd_vel = new ROSLIB.Topic({
