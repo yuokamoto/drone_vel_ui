@@ -21,7 +21,7 @@ RUN npm install -g n && n 11.0.0 && npm i -g npm@6.4.1
 RUN cd /drone_vel_ui && npm install
 
 # execute roslaunch and ui
-RUN cp /drone_vel_ui/start.sh . && chmod +x /start.sh
+RUN cp /drone_vel_ui/start_with_rosbridge.sh . && chmod +x /start.sh
 CMD ["/start.sh"]
 
 # add entrypoint

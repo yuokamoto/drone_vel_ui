@@ -2,25 +2,27 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as NumericInput from "react-numeric-input";
-
+import {WS_URL} from  "./env.js";
 const ROSLIB = require("roslib");
 
 class ControlPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+     rosbridge_url: WS_URL,
      vel: 0.1,
      ang_vel: 0.36,
      isPublish: false,
      ros_msg: null,
-     ros: new ROSLIB.Ros({
-        url : 'ws://localhost:9090'
-     }),
+     ros: null,
      cmd_vel: null,
      takeoff: null,
      land: null
     };
 
+    this.state.ros = new ROSLIB.Ros({
+        url : this.state.rosbridge_url
+     })
 
     this.state.ros.on('connection', function() {
       console.log('Connected to websocket server.');
@@ -32,7 +34,7 @@ class ControlPanel extends React.Component {
 
     this.state.ros.on('close', function() {
       console.log('Connection to websocket server closed.');
-      setTimeout(()=>{this.connect('ws://localhost:9090')},1000)
+      setTimeout(()=>{this.connect(this.socket.url)},1000)
     });
 
     this.state.cmd_vel = new ROSLIB.Topic({
