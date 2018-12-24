@@ -1,6 +1,8 @@
 ## Overview
 This project include ui for control dji tello drone with ROS.
-Require rosbridge running and url to rosbridge should be in env varable `ROSBRIDGE_UR`(see env.sh)
+
+Require rosbridge running and url to rosbridge should be in env varable `ROSBRIDGE_UR`(see env.sh).
+
 Here are a few files for docker.
 
 ## Available Scripts
