@@ -1,4 +1,3 @@
 #!/bin/bash
-
-roslaunch rosbridge_server rosbridge_websocket.launch &
+./env.sh
 npm start --prefix /drone_vel_ui

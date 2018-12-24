@@ -42,17 +42,29 @@ class ControlPanel extends React.Component {
         name : '/tello/cmd_vel',
         messageType : 'geometry_msgs/Twist'
     });
-    this.state.takeoff = new ROSLIB.Topic({
+    this.state.mode = new ROSLIB.Topic({
         ros : this.state.ros,
-        name : '/tello/takeoff',
-        messageType : 'std_msgs/Empty'
+        name : '/tello/mode',
+        messageType : 'std_msgs/Int8'
     });
-    this.state.land = new ROSLIB.Topic({
-        ros : this.state.ros,
-        name : '/tello/land',
-        messageType : 'std_msgs/Empty'
-    });
-
+    // this.state.takeoff = new ROSLIB.Topic({
+    //     ros : this.state.ros,
+    //     name : '/tello/takeoff',
+    //     messageType : 'std_msgs/Empty'
+    // });
+    // this.state.land = new ROSLIB.Topic({
+    //     ros : this.state.ros,
+    //     name : '/tello/land',
+    //     messageType : 'std_msgs/Empty'
+    // });
+    // this.state.image = new ROSLIB.Topic({
+    //     ros : this.state.ros,
+    //     name : '/tello/image_raw/compressed',
+    //     messageType : 'sensor_msgs/CompressedImage'
+    // });
+    // this.state.image.subscribe(message => {
+    //     console.log('Received message on : ' + message.data);
+    // });
     setInterval(() => {
         if(this.state.isPublish){
           console.log(this.state.ros_msg)
@@ -107,11 +119,11 @@ class ControlPanel extends React.Component {
 
   handleTakeoff() {
     this.setState({isPublish: false})
-    this.state.takeoff.publish(new ROSLIB.Message({}))
+    this.state.mode.publish(new ROSLIB.Message({data:1}))
   }
   handleLandon() {
     this.setState({isPublish: false})
-    this.state.land.publish(new ROSLIB.Message({})) 
+    this.state.mode.publish(new ROSLIB.Message({data:0})) 
   }
   handleVelChange(vel){
     this.setState({vel: vel})
@@ -123,8 +135,15 @@ class ControlPanel extends React.Component {
   render() {
     return (
       <div>
-        <div>
-          <div>
+        {/*control panel */}
+
+        {/*video stream from tello*/}
+        <div className="image">
+          <img src="http://localhost:8080/stream?topic=/tello/image_raw" width="480" height="360"/>
+        </div>
+        <div className="control">
+          {/*takeoff/land */}
+          <div> 
             <button onClick={ () => this.handleTakeoff() }>
               {'Takeoff'}
             </button>
@@ -133,56 +152,66 @@ class ControlPanel extends React.Component {
             </button>
           </div>
           <p></p>
-          <div className="status">{'2D control'}</div>
-          <div className="board-row">
-            {this.renderSquare('↖', [ 1, 1, 0, 0, 0, 0])}
-            {this.renderSquare('↑', [ 1, 0, 0, 0, 0, 0])}
-            {this.renderSquare('↗', [ 1,-1, 0, 0, 0, 0])}
+
+          {/* 2D control panel */}
+          <div>
+            <div className="status">{'2D control'}</div>
+            <div className="board-row">
+              {this.renderSquare('↖', [ 1, 1, 0, 0, 0, 0])}
+              {this.renderSquare('↑', [ 1, 0, 0, 0, 0, 0])}
+              {this.renderSquare('↗', [ 1,-1, 0, 0, 0, 0])}
+            </div>
+            <div className="board-row">
+              {this.renderSquare('←', [ 0, 1, 0, 0, 0, 0])}
+              {this.renderSquare('=', [ 0, 0, 0, 0, 0, 0])}
+              {this.renderSquare('→', [ 0,-1, 0, 0, 0, 0])}
+            </div>
+            <div className="board-row">
+              {this.renderSquare('↙', [-1, 1, 0, 0, 0, 0])}
+              {this.renderSquare('↓', [-1, 0, 0, 0, 0, 0])}
+              {this.renderSquare('↘', [-1,-1, 0, 0, 0, 0])}
+            </div>        
           </div>
-          <div className="board-row">
-            {this.renderSquare('←', [ 0, 1, 0, 0, 0, 0])}
-            {this.renderSquare('=', [ 0, 0, 0, 0, 0, 0])}
-            {this.renderSquare('→', [ 0,-1, 0, 0, 0, 0])}
+          <p></p>
+
+          {/* up/down/rotate control */}
+          <div>
+            <div className="status">{'Up/Down/Rotate'}</div>
+            <div className="board-row">
+              {this.renderSquare(' ', '')}
+              {this.renderSquare('↑', [ 0, 0, 1, 0, 0, 0])}
+              {this.renderSquare(' ', '')}
+            </div>
+            <div className="board-row">
+              {this.renderSquare('↶', [ 0, 0, 0, 0, 0, 1])}
+              {this.renderSquare('=', [ 0, 0, 0, 0, 0, 0])}
+              {this.renderSquare('↷', [ 0, 0, 0, 0, 0,-1])}
+            </div>
+            <div className="board-row">
+              {this.renderSquare(' ', '')}
+              {this.renderSquare('↓', [ 0, 0,-1, 0, 0, 0])}
+              {this.renderSquare(' ', '')}
+            </div>
           </div>
-          <div className="board-row">
-            {this.renderSquare('↙', [-1, 1, 0, 0, 0, 0])}
-            {this.renderSquare('↓', [-1, 0, 0, 0, 0, 0])}
-            {this.renderSquare('↘', [-1,-1, 0, 0, 0, 0])}
+          <p></p>
+
+          {/* vel change */}
+          <div>
+            {'Linear vel :'}
+            {/* <input type="number" name="velinput" value={this.state.vel} onChange={this.handleVelChange.bind(this)} /> */}
+            <NumericInput className="velinput" 
+              format={ (num) => {return num + ' [m/s]';} }
+              value={this.state.vel}
+              onChange = {this.handleVelChange.bind(this)}
+              step={0.1} precision={1} min={0} max={2}/><br/>
+            {'Angular vel :'}
+            <NumericInput className="velinput" 
+              format={ (num) => {return num + ' [rad/s]';} }
+              value={this.state.ang_vel}
+              onChange = {this.handleAngvelChange.bind(this)}
+              step={0.36} precision={2} min={0} max={3.6}/>
           </div>
         </div>
-        <p></p>
-        <div>
-          <div className="status">{'Up/Down/Rotate'}</div>
-          <div className="board-row">
-            {this.renderSquare(' ', '')}
-            {this.renderSquare('↑', [ 0, 0, 1, 0, 0, 0])}
-            {this.renderSquare(' ', '')}
-          </div>
-          <div className="board-row">
-            {this.renderSquare('↶', [ 0, 0, 0, 0, 0, 1])}
-            {this.renderSquare('=', [ 0, 0, 0, 0, 0, 0])}
-            {this.renderSquare('↷', [ 0, 0, 0, 0, 0,-1])}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(' ', '')}
-            {this.renderSquare('↓', [ 0, 0,-1, 0, 0, 0])}
-            {this.renderSquare(' ', '')}
-          </div>
-        </div>
-        <p></p>
-        {'Linear vel :'}
-        {/* <input type="number" name="velinput" value={this.state.vel} onChange={this.handleVelChange.bind(this)} /> */}
-        <NumericInput className="velinput" 
-          format={ (num) => {return num + ' [m/s]';} }
-          value={this.state.vel}
-          onChange = {this.handleVelChange.bind(this)}
-          step={0.1} precision={1} min={0} max={2}/><br/>
-        {'Angular vel :'}
-        <NumericInput className="velinput" 
-          format={ (num) => {return num + ' [rad/s]';} }
-          value={this.state.ang_vel}
-          onChange = {this.handleAngvelChange.bind(this)}
-          step={0.36} precision={2} min={0} max={3.6}/>
       </div>
     );
   }

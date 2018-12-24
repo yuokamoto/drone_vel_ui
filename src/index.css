@@ -56,3 +56,10 @@ ol, ul {
 .game-info {
   margin-left: 20px;
 }
+
+.control {
+  float:left;
+}
+.image {
+  float:right;
+}
