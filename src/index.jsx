@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as NumericInput from "react-numeric-input";
-import {WS_URL} from  "./env.js";
+import {WS_URL, VIDEO_URL} from  "./env.js";
 const ROSLIB = require("roslib");
 
 class ControlPanel extends React.Component {
@@ -10,6 +10,7 @@ class ControlPanel extends React.Component {
     super(props);
     this.state = {
      rosbridge_url: WS_URL,
+     video_url: VIDEO_URL+"/stream?topic=/tello/image_raw",
      vel: 0.1,
      ang_vel: 0.36,
      isPublish: false,
@@ -139,7 +140,7 @@ class ControlPanel extends React.Component {
 
         {/*video stream from tello*/}
         <div className="image">
-          <img src="http://localhost:8080/stream?topic=/tello/image_raw" width="480" height="360"/>
+          <img src={this.state.video_url} width="480" height="360" alt="Video from drone"/>
         </div>
         <div className="control">
           {/*takeoff/land */}
