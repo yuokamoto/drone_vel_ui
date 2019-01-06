@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as NumericInput from "react-numeric-input";
 import {WS_URL, VIDEO_URL} from  "./env.js";
+import * as webrtc from "./webrtc.js"
+
 const ROSLIB = require("roslib");
 
 class ControlPanel extends React.Component {
@@ -10,7 +12,8 @@ class ControlPanel extends React.Component {
     super(props);
     this.state = {
      rosbridge_url: WS_URL,
-     video_url: VIDEO_URL+"/stream?topic=/tello/image_raw",
+     // video_url: VIDEO_URL+"/stream?topic=/tello/image_raw",
+     video_connected: false,
      vel: 0.1,
      ang_vel: 0.36,
      isPublish: false,
@@ -35,7 +38,7 @@ class ControlPanel extends React.Component {
 
     this.state.ros.on('close', function() {
       console.log('Connection to websocket server closed.');
-      setTimeout(()=>{this.connect(this.socket.url)},1000)
+      // setTimeout(()=>{this.connect(this.socket.url)},1000)
     });
 
     this.state.cmd_vel = new ROSLIB.Topic({
@@ -73,6 +76,22 @@ class ControlPanel extends React.Component {
       }
     },
     100)
+
+    this.connect = function() {
+      if(this.state.video_connected){ //disconnect
+        webrtc.disconnect()
+      }
+      console.log('Connect to Video')
+      webrtc.connect()
+      this.state.video_connected = true
+    }
+
+    setInterval(() => {
+        if(this.state.video_connected==false){
+          this.connect()
+      }
+    },
+    1000)
   }
 
   renderSquare(i, arg) {
@@ -132,6 +151,10 @@ class ControlPanel extends React.Component {
   handleAngvelChange(ang_vel){
     this.setState({ang_vel: ang_vel})
   }
+  handleConnect(){
+    // this.state.video_connected = false
+    this.connect() 
+  }
 
   render() {
     return (
@@ -140,7 +163,17 @@ class ControlPanel extends React.Component {
 
         {/*video stream from tello*/}
         <div className="image">
-          <img src={this.state.video_url} width="480" height="360" alt="Video from drone"/>
+            <div>
+                <video id="remote_video" autoPlay width="480" height="360" ></video>
+            </div>
+            <div>
+              <select id="codec" defaultValue={1} onChange={ ()=> this.handleConnect() }>
+                  <option>H264</option>
+                  <option value="1">VP8</option>
+                  <option>VP9</option>
+              </select>
+              <button type="button" onClick={()=>this.handleConnect()}>Connect</button>
+            </div>
         </div>
         <div className="control">
           {/*takeoff/land */}
