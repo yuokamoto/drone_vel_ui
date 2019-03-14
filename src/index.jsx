@@ -16,12 +16,21 @@ class ControlPanel extends React.Component {
      video_connected: false,
      vel: 0.1,
      ang_vel: 0.36,
+     isOn: false,
      isPublish: false,
-     ros_msg: null,
-     ros: null,
-     cmd_vel: null,
-     takeoff: null,
-     land: null
+     ros_msg: new ROSLIB.Message({
+            linear : {
+             x : 0,
+             y : 0,
+             z : 0
+            },
+            angular : {
+             x : 0,
+             y : 0,
+             z : 0
+            }
+        }),
+     ros: null
     };
 
     this.state.ros = new ROSLIB.Ros({
@@ -43,14 +52,14 @@ class ControlPanel extends React.Component {
 
     this.state.cmd_vel = new ROSLIB.Topic({
         ros : this.state.ros,
-        name : '/tello/cmd_vel',
+        name : '/cmd_vel',
         messageType : 'geometry_msgs/Twist'
     });
-    this.state.mode = new ROSLIB.Topic({
-        ros : this.state.ros,
-        name : '/tello/mode',
-        messageType : 'std_msgs/Int8'
-    });
+    // this.state.mode = new ROSLIB.Topic({
+    //     ros : this.state.ros,
+    //     name : '/mode',
+    //     messageType : 'std_msgs/Int8'
+    // });
     // this.state.takeoff = new ROSLIB.Topic({
     //     ros : this.state.ros,
     //     name : '/tello/takeoff',
@@ -106,44 +115,26 @@ class ControlPanel extends React.Component {
   }
 
   handleClick(i, arg, isDown) {
-    // if(typeof arg == 'string'){
-    //   if(isDown){
-    //     this.setState({isPublish: false})
-    //     if(arg === 'takeoff'){
-    //       console.log('takeoff')
-    //       this.state.takeoff.publish(new ROSLIB.Message({}))
-    //     }else if(arg === 'land'){
-    //       console.log('land')
-    //       this.state.land.publish(new ROSLIB.Message({}))
-    //     }
-    //   }
-    // }
-    // else{
-    this.setState({
-      isPublish: isDown,
-      ros_msg: new ROSLIB.Message({
-          linear : {
-           x : arg[0]*this.state.vel,
-           y : arg[1]*this.state.vel,
-           z : arg[2]*this.state.vel
-          },
-          angular : {
-           x : 0*arg[3]*this.state.ang_vel,
-           y : 0*arg[4]*this.state.ang_vel,
-           z : arg[5]*this.state.ang_vel
-          }
+      this.setState({
+        isPublish: isDown && this.state.isOn,
+        ros_msg: new ROSLIB.Message({
+            linear : {
+             x : arg[0]*this.state.vel,
+             y : arg[1]*this.state.vel,
+             z : arg[2]*this.state.vel
+            },
+            angular : {
+             x : 0*arg[3]*this.state.ang_vel,
+             y : 0*arg[4]*this.state.ang_vel,
+             z : arg[5]*this.state.ang_vel
+            }
+        })
       })
-    })
     // } 
   }
 
-  handleTakeoff() {
-    this.setState({isPublish: false})
-    this.state.mode.publish(new ROSLIB.Message({data:1}))
-  }
-  handleLandon() {
-    this.setState({isPublish: false})
-    this.state.mode.publish(new ROSLIB.Message({data:0})) 
+  handleOnOff(e){
+    this.setState({isOn: e.target.checked})
   }
   handleVelChange(vel){
     this.setState({vel: vel})
@@ -178,42 +169,17 @@ class ControlPanel extends React.Component {
         <div className="control">
           {/*takeoff/land */}
           <div> 
-            <button onClick={ () => this.handleTakeoff() }>
-              {'Takeoff'}
-            </button>
-            <button onClick={ () => this.handleLandon() }>
-              {'Landon'}
-            </button>
+            <input id='onfoff' type="checkbox" value="on" onChange={ this.handleOnOff.bind(this) }/>
+            <label>ON/OFF</label>
           </div>
           <p></p>
 
           {/* 2D control panel */}
           <div>
-            <div className="status">{'2D control'}</div>
-            <div className="board-row">
-              {this.renderSquare('↖', [ 1, 1, 0, 0, 0, 0])}
-              {this.renderSquare('↑', [ 1, 0, 0, 0, 0, 0])}
-              {this.renderSquare('↗', [ 1,-1, 0, 0, 0, 0])}
-            </div>
-            <div className="board-row">
-              {this.renderSquare('←', [ 0, 1, 0, 0, 0, 0])}
-              {this.renderSquare('=', [ 0, 0, 0, 0, 0, 0])}
-              {this.renderSquare('→', [ 0,-1, 0, 0, 0, 0])}
-            </div>
-            <div className="board-row">
-              {this.renderSquare('↙', [-1, 1, 0, 0, 0, 0])}
-              {this.renderSquare('↓', [-1, 0, 0, 0, 0, 0])}
-              {this.renderSquare('↘', [-1,-1, 0, 0, 0, 0])}
-            </div>        
-          </div>
-          <p></p>
-
-          {/* up/down/rotate control */}
-          <div>
-            <div className="status">{'Up/Down/Rotate'}</div>
+            <div className="status">{'Velocity Control'}</div>
             <div className="board-row">
               {this.renderSquare(' ', '')}
-              {this.renderSquare('↑', [ 0, 0, 1, 0, 0, 0])}
+              {this.renderSquare('↑', [ 1, 0, 0, 0, 0, 0])}
               {this.renderSquare(' ', '')}
             </div>
             <div className="board-row">
@@ -223,7 +189,7 @@ class ControlPanel extends React.Component {
             </div>
             <div className="board-row">
               {this.renderSquare(' ', '')}
-              {this.renderSquare('↓', [ 0, 0,-1, 0, 0, 0])}
+              {this.renderSquare('↓', [ -1, 0, 0, 0, 0, 0])}
               {this.renderSquare(' ', '')}
             </div>
           </div>
