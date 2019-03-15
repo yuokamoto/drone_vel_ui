@@ -7,40 +7,47 @@ let candidates = [];
 let hasReceivedSdp = false;
 
 const wsUrl = VIDEO_URL;
-const ws = new WebSocket(wsUrl);
-ws.onopen = function (evt) {
-    console.log('ws open()');
-};
-ws.onerror = function (err) {
-    console.error('ws onerror() ERR:', err);
-};
-ws.onmessage = function (evt) {
-    console.log('ws onmessage() data:', evt.data);
-    const message = JSON.parse(evt.data);
-    if (message.type === 'offer') {
-        console.log('Received offer ...');
-        const offer = new RTCSessionDescription(message);
-        setOffer(offer);
-    }
-    else if (message.type === 'answer') {
-        console.log('Received answer ...');
-        const answer = new RTCSessionDescription(message);
-        setAnswer(answer);
-    }
-    else if (message.type === 'candidate') {
-        console.log('Received ICE candidate ...');
-        const candidate = new RTCIceCandidate(message.ice);
-        console.log(candidate);
-        if (hasReceivedSdp) {
-            addIceCandidate(candidate);
-        } else {
-            candidates.push(candidate);
+
+export function WebSocketRTC(url){
+    this.url = url
+    this.ws = new WebSocket(this.url);
+    this.ws.onopen = function(evt){
+        console.log('ws open()');
+    };
+    this.ws.onerror = function(err) {
+        console.error('ws onerror() ERR:', err);
+    };
+    this.ws.onmessage = function(evt) {
+        console.log('ws onmessage() data:', evt.data);
+        const message = JSON.parse(evt.data);
+        if (message.type === 'offer') {
+            console.log('Received offer ...');
+            const offer = new RTCSessionDescription(message);
+            setOffer(offer);
         }
-    }
-    else if (message.type === 'close') {
-        console.log('peer is closed ...');
-    }
-};
+        else if (message.type === 'answer') {
+            console.log('Received answer ...');
+            const answer = new RTCSessionDescription(message);
+            setAnswer(answer);
+        }
+        else if (message.type === 'candidate') {
+            console.log('Received ICE candidate ...');
+            const candidate = new RTCIceCandidate(message.ice);
+            console.log(candidate);
+            if (hasReceivedSdp) {
+                addIceCandidate(candidate);
+            } else {
+                candidates.push(candidate);
+            }
+        }
+        else if (message.type === 'close') {
+            console.log('peer is closed ...');
+        }
+    };
+}
+
+export var wsrtc = new WebSocketRTC(wsUrl);
+// console.log(ws)
 
 function drainCandidate() {
     hasReceivedSdp = true;
@@ -64,7 +71,9 @@ function sendIceCandidate(candidate) {
     console.log('---sending ICE candidate ---');
     const message = JSON.stringify({ type: 'candidate', ice: candidate });
     console.log('sending candidate=' + message);
-    ws.send(message);
+    if(wsrtc.ws.readyState == WebSocket.OPEN){
+        wsrtc.ws.send(message);
+    }
 }
 
 function playVideo(element, stream) {
@@ -118,12 +127,14 @@ function sendSdp(sessionDescription) {
     console.log('---sending sdp ---');
     const message = JSON.stringify(sessionDescription);
     console.log('sending SDP=' + message);
-    ws.send(message);
+    wsrtc.ws.send(message);
 }
 
-export function connect() {
+export function connect(url) {
+    wsrtc = new WebSocketRTC(url); 
     if (!peerConnection) {
         console.log('make Offer');
+        console.log(wsrtc.ws.readyState)
         makeOffer();
     }
     else {
@@ -218,9 +229,9 @@ export function disconnect() {
         if (peerConnection.iceConnectionState !== 'closed') {
             peerConnection.close();
             peerConnection = null;
-            if (ws && ws.readyState === 1) {
+            if (wsrtc.ws && wsrtc.ws.readyState === 1) {
                 const message = JSON.stringify({ type: 'close' });
-                ws.send(message);
+                wsrtc.ws.send(message);
             }
             console.log('sending close message');
             cleanupVideoElement(remoteVideo);
