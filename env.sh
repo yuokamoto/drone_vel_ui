@@ -6,8 +6,8 @@ VIDEO_URL='ws://localhost:8080/ws'
 if [ ! -z "$ROSBRIDGE_URL" ]; then
     WS_URL='wss://'${ROSBRIDGE_URL##*/}
 fi
-if [ ! -z "$VIDEO_URL" ]; then
-    VIDEO_URL='ws://'${STREAMING_VIDEO_URL##*/}'ws'
+if [ ! -z "$STREAMING_VIDEO_URL" ]; then
+    VIDEO_URL='ws://'${STREAMING_VIDEO_URL##*//}
 fi
 # write env object to env.js
 cat <<EOT > /drone_vel_ui/src/env.js
