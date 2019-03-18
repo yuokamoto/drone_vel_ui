@@ -1,7 +1,7 @@
 FROM node
 
 # clone source
-RUN git clone https://github.com/yuokamoto/drone_vel_ui.git
+RUN git clone -b jackal_control https://github.com/yuokamoto/drone_vel_ui.git
 
 # install/setup node
 RUN cd /drone_vel_ui && npm install
