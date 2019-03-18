@@ -1,2 +1,2 @@
-export const WS_URL = 'ws://localhost:9090'; //'wss://inst-jvtiodqikulbwtymuqwpiwmq-bytsoh.ep.rapyuta.io:443';//
-export const VIDEO_URL = 'http://localhost:8080';//'ws://localhost:8080/ws';//'ws://446797fa.ngrok.io/ws';
+export const WS_URL = 'wss://inst-jvtiodqikulbwtymuqwpiwmq-bytsoh.ep.rapyuta.io:443';//'ws://localhost:9090'; //
+export const VIDEO_URL = 'ws://a14cdc62.ap.ngrok.io/ws';//'ws://localhost:8080/ws';//'//'http://localhost:8080';//'ws://localhost:8080/ws';//'ws://446797fa.ngrok.io/ws';
