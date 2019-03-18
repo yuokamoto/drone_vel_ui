@@ -174,7 +174,7 @@ class ControlPanel extends React.Component {
               </div>
             */}
             <img src={this.state.video_url+"/stream?topic=/cv_camera/image_raw"} alt="Video from drone"/>
-            <input type="text" value={this.state.video_url+"/stream?topic=/cv_camera/image_raw"} id="name" size="60" onChange={this.changeURL.bind(this)} />
+            <input type="text" value={this.state.video_url} id="name" size="60" onChange={this.changeURL.bind(this)} />
             
         </div>
         <div className="control">
