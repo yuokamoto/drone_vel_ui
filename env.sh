@@ -7,7 +7,7 @@ if [ ! -z "$ROSBRIDGE_URL" ]; then
     WS_URL='wss://'${ROSBRIDGE_URL##*/}
 fi
 if [ ! -z "$VIDEO_URL" ]; then
-    VIDEO_URL='ws://'${VIDEO_URL##*/}'ws'
+    VIDEO_URL='ws://'${STREAMING_VIDEO_URL##*/}'ws'
 fi
 # write env object to env.js
 cat <<EOT > /drone_vel_ui/src/env.js
