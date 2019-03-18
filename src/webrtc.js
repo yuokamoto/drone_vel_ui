@@ -72,7 +72,12 @@ function sendIceCandidate(candidate) {
     const message = JSON.stringify({ type: 'candidate', ice: candidate });
     console.log('sending candidate=' + message);
     if(wsrtc.ws.readyState == WebSocket.OPEN){
+        // console.log('***********************************')
+        // console.log(wsrtc.ws.readyState)
         wsrtc.ws.send(message);
+    }else{
+        // console.log('***************no********************')
+        // console.log(wsrtc.ws.readyState)
     }
 }
 
@@ -131,7 +136,7 @@ function sendSdp(sessionDescription) {
 }
 
 export function connect(url) {
-    wsrtc = new WebSocketRTC(url); 
+    // wsrtc = new WebSocketRTC(url); 
     if (!peerConnection) {
         console.log('make Offer');
         console.log(wsrtc.ws.readyState)

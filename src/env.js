@@ -1,2 +1,2 @@
 export const WS_URL = 'ws://localhost:9090'; //'wss://inst-jvtiodqikulbwtymuqwpiwmq-bytsoh.ep.rapyuta.io:443';//
-export const VIDEO_URL = 'ws://219f00e8.ngrok.io/ws';//'ws://localhost:8080/ws';//'ws://446797fa.ngrok.io/ws';//'ws://b685e91d.ngrok.io/ws';//'
+export const VIDEO_URL = 'http://localhost:8080';//'ws://localhost:8080/ws';//'ws://446797fa.ngrok.io/ws';

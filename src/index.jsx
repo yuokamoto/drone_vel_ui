@@ -3,22 +3,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as NumericInput from "react-numeric-input";
 import {WS_URL, VIDEO_URL} from  "./env.js";
-import WebSocketRTC from "./webrtc.js"
-import * as webrtc from "./webrtc.js"
+// import WebSocketRTC from "./webrtc.js"
+// import * as webrtc from "./webrtc.js"
 
 const ROSLIB = require("roslib");
-console.log('********************')
-console.log(VIDEO_URL)
-// webrtc.wsrtc = new webrtc.WebSocketRTC("ws://localhost:8080/ws")
-// wsrtc = new webrtc.WebSocketRTC("ws://0c08920c.ngrok.io/ws")
-// wsrtc = new webrtc.WebSocketRTC("ws://dummy.com")
 
 class ControlPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
      rosbridge_url: WS_URL,
-     video_url: VIDEO_URL, //+"/stream?topic=/image_raw",
+     video_url: VIDEO_URL, //+"/stream?topic=/cv_camera/image_raw",
      video_connected: false,
      vel: 0.1,
      ang_vel: 0.36,
@@ -93,14 +88,14 @@ class ControlPanel extends React.Component {
     },
     100)
 
-    this.connect = function() {
-      if(!this.state.video_connected){ //disconnect
-        console.log('Disconnect')
-        webrtc.disconnect()
-      }
-      console.log('Connect to '+ this.state.video_url)
-      webrtc.connect(this.state.video_url)
-    }
+    // this.connect = function() {
+    //   if(!this.state.video_connected){ //disconnect
+    //     console.log('Disconnect')
+    //     webrtc.disconnect()
+    //   }
+    //   console.log('Connect to '+ this.state.video_url)
+    //   webrtc.connect(this.state.video_url)
+    // }
 
     // setInterval(() => {
     //     if(!this.state.video_connected){
@@ -165,6 +160,7 @@ class ControlPanel extends React.Component {
 
         {/*video stream from tello*/}
         <div className="image">
+            {/*
             <div>
                 <video id="remote_video" autoPlay width="480" height="360" ></video>
             </div>
@@ -174,12 +170,12 @@ class ControlPanel extends React.Component {
                   <option value="1">VP8</option>
                   <option>VP9</option>
               </select>
-              <input type="text" value={this.state.video_url} id="name" size="30" onChange={this.changeURL.bind(this)} />
               <button type="button" onClick={()=>this.handleConnect()}>Connect</button>
-            </div>
-            {/*
-            <img src={this.state.video_url} width="480" height="360" alt="Video from drone"/>
+              </div>
             */}
+            <img src={this.state.video_url+"/stream?topic=/cv_camera/image_raw"} alt="Video from drone"/>
+            <input type="text" value={this.state.video_url+"/stream?topic=/cv_camera/image_raw"} id="name" size="60" onChange={this.changeURL.bind(this)} />
+            
         </div>
         <div className="control">
           {/*takeoff/land */}
